@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Te Amo</title>
+    <title>Para Ligia</title>
     <style>
         body {
             margin: 0;
@@ -57,6 +57,22 @@
             }
         }
 
+        /* Mensaje central para forzar la interacción y el audio */
+        #tap-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
         /* Ocultar controles de audio pero mantener funcionalidad */
         #bg-music {
             position: absolute;
@@ -67,8 +83,15 @@
     </style>
 </head>
 <body>
-    <audio id="bg-music" loop autoplay>
-        <source src="https://zeta.123tokyo.xyz/get.php/e/71/Q07UFlOlxZ0.mp3?n=Si%20supieras%20lo%20que%20siento%20con%20mirarte%20-%20Gonzalo%20%C3%81vila%20%28Lyrics%29&uT=R&uN=aGVsbG8tdFNxRFFJT08z&h=vQ9G08mGgPpy07WsF9ONuw&s=1763450542&uT=R&uN=aGVsbG8tdFNxRFFJT08z" type="audio/mpeg">
+    
+    <!-- Mensaje para indicar al usuario que debe interactuar -->
+    <div id="tap-message">
+        Haz clic en la pantalla para iniciar la música y el amor
+    </div>
+    
+    <audio id="bg-music" loop>
+        <!-- ENLACE DE MÚSICA DE DOMINIO PÚBLICO (MP3 ESTABLE) -->
+        <source src="https://github.com/scottytyrrell/Public-Domain-Music/raw/main/Mornings%20With%20You%20by%20Podington%20Bear.mp3" type="audio/mpeg">
         Tu navegador no soporta el elemento de audio.
     </audio>
 
@@ -76,65 +99,63 @@
         document.addEventListener('DOMContentLoaded', function() {
             const body = document.body;
             const audio = document.getElementById('bg-music');
+            const tapMessage = document.getElementById('tap-message');
             
             // Configurar audio
             audio.volume = 0.4;
-            audio.play().catch(e => console.log("La reproducción automática no está permitida"));
             
             // Colores rojos para las palabras que caen
             const redColors = [
-                '#ff0000', // Rojo vivo
-                '#ff6b6b', // Rojo claro
-                '#ff9999', // Rojo bebé
-                '#cc0000', // Rojo oscuro
-                '#ff3333', // Rojo brillante
-                '#ff8080', // Rosa rojizo
-                '#e60000', // Rojo intenso
-                '#ff4d4d'  // Rojo coral
+                '#ff0000', '#ff6b6b', '#ff9999', '#cc0000', '#ff3333', '#ff8080', '#e60000', '#ff4d4d'
             ];
             
             // Colores pastel para las explosiones
             const explosionColors = [
-                '#FFB6C1', // LightPink
-                '#FFD700', // Light yellow
-                '#98FB98', // PaleGreen
-                '#ADD8E6', // LightBlue
-                '#E6E6FA', // Lavender
-                '#FFA07A', // LightSalmon
-                '#87CEFA', // LightSkyBlue
-                '#FFDEAD', // NavajoWhite
-                '#F0E68C', // Khaki
-                '#DDA0DD'  // Plum
+                '#FFB6C1', '#FFD700', '#98FB98', '#ADD8E6', '#E6E6FA', '#FFA07A', '#87CEFA', '#FFDEAD', '#F0E68C', '#DDA0DD'
             ];
             
-            // Crear palabras "Te Amo" que caen (más tupido)
+            // Crear palabras "Te Amo" que caen
             function createFallingWord() {
                 const word = document.createElement('div');
                 word.className = 'love-word';
                 word.textContent = Math.random() > 0.3 ? 'Te Quiero Mucho Ligia :3' : '❤️';
                 word.style.left = Math.random() * 100 + 'vw';
-                word.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Más rápido
+                word.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 word.style.color = redColors[Math.floor(Math.random() * redColors.length)];
                 word.style.fontSize = (Math.random() * 15 + 20) + 'px';
                 word.style.opacity = Math.random() * 0.7 + 0.3;
                 
                 body.appendChild(word);
                 
-                // Eliminar la palabra cuando salga de la pantalla
                 setTimeout(() => {
                     word.remove();
                 }, parseFloat(word.style.animationDuration) * 1000);
             }
             
-            // Crear múltiples palabras que caen (más tupido)
+            // Iniciar palabras que caen (más tupido)
             for (let i = 0; i < 80; i++) {
                 setTimeout(createFallingWord, Math.random() * 2000);
             }
-            
-            // Crear nuevas palabras continuamente (más frecuente)
             setInterval(createFallingWord, 200);
             
-            // Crear explosión al hacer clic/tocar
+            // Función de activación al hacer clic/tocar
+            function activatePage(e) {
+                // Eliminar el mensaje de activación
+                tapMessage.remove();
+                
+                // Iniciar la música
+                audio.play().catch(e => console.log("Audio no pudo reproducirse automáticamente"));
+
+                // Quitar este listener para que no se active de nuevo
+                body.removeEventListener('click', activatePage);
+                body.removeEventListener('touchstart', activatePage);
+            }
+            
+            // Añadir escuchadores para el mensaje de tap
+            body.addEventListener('click', activatePage);
+            body.addEventListener('touchstart', activatePage);
+
+            // Crear explosión al hacer clic/tocar después de la activación
             body.addEventListener('click', createExplosion);
             body.addEventListener('touchstart', createExplosion);
             
@@ -142,10 +163,9 @@
                 const x = e.clientX || (e.touches && e.touches[0].clientX);
                 const y = e.clientY || (e.touches && e.touches[0].clientY);
                 
-                if (x === undefined || y === undefined) return;
+                if (x === undefined || y === undefined || tapMessage.parentNode) return; // No explotar si el mensaje sigue ahí
                 
-                // Crear múltiples partículas para la explosión
-                for (let i = 0; i < 40; i++) { // Más partículas
+                for (let i = 0; i < 40; i++) {
                     const particle = document.createElement('div');
                     particle.className = 'explosion';
                     particle.textContent = Math.random() > 0.3 ? 'Te Quiero Mucho Ligia :3' : '❤️';
@@ -153,30 +173,23 @@
                     particle.style.top = y + 'px';
                     particle.style.color = explosionColors[Math.floor(Math.random() * explosionColors.length)];
                     
-                    // Direcciones aleatorias para la explosión
                     const angle = Math.random() * Math.PI * 2;
-                    const distance = Math.random() * 150 + 80; // Más lejos
+                    const distance = Math.random() * 150 + 80;
                     const tx = Math.cos(angle) * distance;
                     const ty = Math.sin(angle) * distance;
                     
                     particle.style.setProperty('--tx', tx + 'px');
                     particle.style.setProperty('--ty', ty + 'px');
                     particle.style.fontSize = (Math.random() * 15 + 18) + 'px';
-                    particle.style.animationDuration = (Math.random() * 0.5 + 1.5) + 's'; // Más lento
+                    particle.style.animationDuration = (Math.random() * 0.5 + 1.5) + 's';
                     
                     body.appendChild(particle);
                     
-                    // Eliminar la partícula después de la animación
                     setTimeout(() => {
                         particle.remove();
                     }, 1800);
                 }
             }
-            
-            // Permitir que el audio se reproduzca después de una interacción
-            document.addEventListener('click', function() {
-                audio.play().catch(e => console.log("Audio no pudo reproducirse"));
-            }, { once: true });
         });
     </script>
 </body>
